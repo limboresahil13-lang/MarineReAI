@@ -27,20 +27,6 @@ Deploy on Streamlit Community Cloud:
 #  SECTION 1 — core_pricing.py  (pricing engine, UI-agnostic)
 # ═══════════════════════════════════════════════════════════════════════
 
-"""
-core_pricing.py
-─────────────────────────────────────────────────────────────────────────
-Reusable, UI-agnostic actuarial pricing engine: frequency-severity pricing
-via XGBoost (Poisson frequency + Gamma severity), for either:
-
-  (a) Excess-of-Loss layer pricing  (retention + limit set), or
-  (b) Ground-up / primary pricing   (retention = None)
-
-No print statements, no file-system side effects unless explicitly asked
-(build_pdf_bytes returns bytes; charts are returned as matplotlib Figures).
-This module is imported by app.py (Streamlit dashboard) but has no
-Streamlit dependency itself, so it can be reused anywhere (CLI, API, tests).
-"""
 
 import io
 import datetime
@@ -1076,32 +1062,7 @@ def build_pdf_bytes(meta, ps, notes, charts, base_ccy, key_findings=None):
 #  SECTION 2 — agents.py  (multi-agent orchestration layer, Gemini powered)
 # ═══════════════════════════════════════════════════════════════════════
 
-"""
-agents.py
-─────────────────────────────────────────────────────────────────────────
-MarineReAI — Multi-Agent System (Gemini 2.5 Flash powered)
 
-Five cooperating agents orchestrate the deterministic XGBoost +
-actuarial-pricing engine in core_pricing.py. Each agent does its
-quantitative work with plain Python/XGBoost/ReportLab (deterministic,
-reproducible, auditable — the right tool for regulated pricing numbers)
-and then calls Gemini 2.5 Flash to turn its structured output into a
-short plain-English insight for the underwriter. If no Gemini API key
-is supplied, every agent degrades gracefully to a rule-based fallback
-sentence so the pricing pipeline keeps working without AI narration.
-
-    Agent 1 — DataAnalystAgent       : load/clean data, find missing or
-                                        invalid entries, engineer & select
-                                        features, prepare train/test splits
-    Agent 2 — MLPricingAgent         : XGBoost Poisson (frequency) +
-                                        XGBoost Gamma (severity) models
-    Agent 3 — ActuarialPricingAgent  : Pure Premium, Gross Premium, RoL
-    Agent 4 — ReportAgent            : charts + downloadable PDF report
-    Agent 5 — ResponseAgent          : conversational Q&A with memory
-
-This module has no Streamlit dependency — it can be reused from app.py,
-a CLI, or tests.
-"""
 
 # ── Gemini SDK — supports both the new google-genai and legacy
 #    google-generativeai packages, same compatibility shim as app.py ──
